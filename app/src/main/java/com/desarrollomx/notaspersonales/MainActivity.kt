@@ -9,6 +9,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.desarrollomx.notaspersonales.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +31,28 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        //area_texto_nota = findViewById(R.id.ta_msg)
+
+        var btn_guardar = findViewById<Button>(R.id.btn_guardar_nota)
+
+        btn_guardar.setOnClickListener { guardarNota() }
+
+
+    }
+
+    private fun guardarNota() {
+        println("Holas")
+        val mensaje = findViewById<EditText>(R.id.ta_msg).text
+        var contenedor = findViewById<LinearLayout>(R.id.contenedor_principal)
+
+        var nuevaNota = TextView(this)
+        nuevaNota.setText(mensaje)
+        nuevaNota.layoutParams = ViewGroup.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        contenedor.addView(nuevaNota)
+
+    }
+    fun toast ( ) {
+        Toast.makeText(this@MainActivity, "You clicked me.", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
