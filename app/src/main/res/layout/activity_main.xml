@@ -6,21 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <include layout="@layout/content_main" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
 
         <EditText
             android:id="@+id/ta_msg"
+            android:autofillHints="@string/main_suggesfill_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_weight="5"
             android:ems="12"
             android:hint="@string/main_hint_msg"
-            android:inputType="textNoSuggestions"
+            android:inputType="textMultiLine"
+            android:background="@color/white"
             />
 
         <Button
@@ -29,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:icon="@android:drawable/ic_menu_upload"
-            app:iconGravity="textStart" />
+            app:iconGravity="textStart"
+            android:layout_gravity="bottom|center_horizontal"/>
     </LinearLayout>
 
     <com.google.android.material.appbar.AppBarLayout
@@ -45,7 +51,5 @@
             app:popupTheme="@style/Theme.NotasPersonales.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
-    <include layout="@layout/content_main" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

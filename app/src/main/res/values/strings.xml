@@ -11,4 +11,5 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="comun_guardar">Guardar</string>
     <string name="main_hint_msg">Escribe una nota...</string>
+    <string name="main_suggesfill_msg">Comprar un articulo en el super, Agendar cita con detista, Numero de Mateo 614 127 8943</string>
 </resources>
