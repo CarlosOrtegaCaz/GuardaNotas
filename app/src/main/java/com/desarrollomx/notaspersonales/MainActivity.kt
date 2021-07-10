@@ -49,6 +49,15 @@ class MainActivity : AppCompatActivity() {
         conexionBD()
 
         cargarNotas()
+        goToBottom()
+        hideKeyboard()
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val areaTexto = findViewById<EditText>(R.id.ta_msg)
+        areaTexto.clearFocus() //No sirve
 
     }
 
@@ -66,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
           //  val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
             val nota = Nota(mensaje)
-            println("Nota $id  $mensaje")
+            //println("Nota $id  $mensaje")
             agregarCarta(mensaje)
         }
         appDB.close()
@@ -98,7 +107,16 @@ class MainActivity : AppCompatActivity() {
         agregarCarta(mensaje)
         areaTexto.setText("")//Vaciar
         hideKeyboard()
+        goToBottom()
 
+
+
+    }
+
+    fun goToBottom () {
+        val contenedor_cartas = findViewById<LinearLayout>(R.id.contenedor_principal)
+        val contenedor_scroll = findViewById<ScrollView>(R.id.main_scroll)
+        contenedor_scroll.smoothScrollTo(0,contenedor_cartas.height)
     }
 
     private fun guardarNota(mensaje: String) {
@@ -110,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         val pattern = "yyyy-MM-dd HH:mm:ss"
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(Date())
-        println("Fecha: " + date)
+        //println("Fecha: " + date)
 
         row1.put("fechaCreado", date)
 

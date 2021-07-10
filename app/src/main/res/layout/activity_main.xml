@@ -12,30 +12,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        >
+        android:background="@drawable/text_area_background"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/ta_msg"
-            android:autofillHints="@string/main_suggesfill_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="12dp"
             android:layout_weight="5"
+            android:autofillHints="@string/main_suggesfill_msg"
             android:ems="12"
             android:hint="@string/main_hint_msg"
-            android:inputType="textMultiLine"
-            android:background="@color/white"
-            />
+            android:inputType="textMultiLine" />
 
         <Button
             android:id="@+id/btn_guardar_nota"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
+            android:focusableInTouchMode="true"
             app:icon="@android:drawable/ic_menu_upload"
-            app:iconGravity="textStart"
-            android:layout_gravity="bottom|center_horizontal"/>
+            app:iconGravity="textStart" />
     </LinearLayout>
 
     <com.google.android.material.appbar.AppBarLayout
