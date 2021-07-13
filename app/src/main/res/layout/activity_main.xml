@@ -9,6 +9,7 @@
     <include layout="@layout/content_main" />
 
     <LinearLayout
+        android:id="@+id/conte_nuevo_text_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

@@ -1,11 +1,13 @@
 package com.desarrollomx.notaspersonales
 
+import android.R.id
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.os.Bundle
 import android.view.*
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.LinearLayout
@@ -38,13 +40,15 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        //Prueba con texto con 500 caracteres
         //area_texto_nota =
-       // findViewById<EditText>(R.id.ta_msg).setText("Brackets tiene varias características únicas como la Edición rápida y la Vista previa dinámica y muchas más que no vas a encontrar en otros editores. Además, Brackets está escrito en JavaScript, HTML y CSS.\n" +
+
+        // findViewById<EditText>(R.id.ta_msg).setText("Brackets tiene varias características únicas como la Edición rápida y la Vista previa dinámica y muchas más que no vas a encontrar en otros editores. Además, Brackets está escrito en JavaScript, HTML y CSS.\n" +
         //        " Esto significa que la mayoría de quienes usan Brackets tienen las habilidades necesarias para modificar y extender el editor. De hecho, nosotros usamos Brackets todos los días para desarrollar Brackets. Para saber más sobre cómo utilizar estas características únicas, continúa leyendo.")
 
-        var btn_guardar = findViewById<Button>(R.id.btn_guardar_nota)
+        val botonGuardar = findViewById<Button>(R.id.btn_guardar_nota)
 
-        btn_guardar.setOnClickListener { accionBotonGuardarNota() }
+        botonGuardar.setOnClickListener { accionBotonGuardarNota() }
 
         conexionBD()
 
@@ -61,50 +65,50 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun cargarNotas() {
+    private fun cargarNotas() {
         val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
 
         val myCursor: Cursor = appDB.rawQuery("select * from notas", null)
         while (myCursor.moveToNext()) {
             val id = myCursor.getInt(0)
             val mensaje = myCursor.getString(1)
-            println("Carta - " + mensaje)
-            val categoria = myCursor.getString(2)
+            //println("Carta - " + mensaje)
+            val categoria = if( myCursor.getString(2).isNullOrBlank()) "" else myCursor.getString(2)
             val fechaCreado = myCursor.getString(3)
-            val fechaModificado = myCursor.getString(4)
+            val fechaModificado = if (myCursor.getString(4).isNullOrBlank()) "" else myCursor.getString(4)
 
-          //  val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
-            val nota = Nota(mensaje)
+            val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
+            //val nota = Nota(mensaje)
             //println("Nota $id  $mensaje")
-            agregarCarta(mensaje)
+            agregarCarta(nota)
         }
+        myCursor.close()
         appDB.close()
     }
 
-    fun conexionBD(){
+    private fun conexionBD(){
         val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
 
         appDB.execSQL(
             "CREATE TABLE IF NOT EXISTS notas (ID INTEGER PRIMARY KEY AUTOINCREMENT, mensaje TEXT, categoria TEXT,  fechaCreado Date, fechaModificado Date)"
         )
         appDB.close()
-        println("----- Base de datos creada.")
     }
 
     private fun accionBotonGuardarNota() {
-        //bloquear boton si no hay nada escrito
+        //Regresar si no hay nada escrito
         val areaTexto = findViewById<EditText>(R.id.ta_msg)
         val mensaje = areaTexto.text.toString()
-        if (mensaje.isNullOrBlank()){
+        if (mensaje.isBlank()){
             toastShort("Mensaje vacío...")
             return
         }
 
         //Guardar nota en base de datos
-            guardarNota(mensaje)
+            //guardarNota(mensaje)
 
 
-        agregarCarta(mensaje)
+        //agregarCarta(mensaje)
         areaTexto.setText("")//Vaciar
         hideKeyboard()
         goToBottom()
@@ -113,10 +117,10 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun goToBottom () {
-        val contenedor_cartas = findViewById<LinearLayout>(R.id.contenedor_principal)
-        val contenedor_scroll = findViewById<ScrollView>(R.id.main_scroll)
-        contenedor_scroll.smoothScrollTo(0,contenedor_cartas.height)
+    private fun goToBottom () {
+        val contenedorCartas = findViewById<LinearLayout>(R.id.contenedor_principal)
+        val contenedorScroll = findViewById<ScrollView>(R.id.main_scroll)
+        contenedorScroll.smoothScrollTo(0,contenedorCartas.height)
     }
 
     private fun guardarNota(mensaje: String) {
@@ -125,18 +129,25 @@ class MainActivity : AppCompatActivity() {
         //val fecha = java.util.Calendar.getInstance()
         //println("Fecha:  " + fecha.time)
 
-        val pattern = "yyyy-MM-dd HH:mm:ss"
-        val simpleDateFormat = SimpleDateFormat(pattern)
-        val date: String = simpleDateFormat.format(Date())
-        //println("Fecha: " + date)
+        //Fecha a string
 
-        row1.put("fechaCreado", date)
+
+        row1.put("fechaCreado", fechaAString(Date()))
 
         val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
 
         appDB.insert("notas",null,row1)
         appDB.close()
     }
+
+    fun fechaAString (fecha : Date): String {
+        val pattern = "yyyy-MM-dd HH:mm:ss"
+        val simpleDateFormat = SimpleDateFormat(pattern)
+        val date: String = simpleDateFormat.format(fecha)
+        //println("Fecha: " + date)
+        return date
+    }
+
 
     fun hideKeyboard() {
         hideKeyboard(currentFocus ?: View(this))
@@ -147,31 +158,159 @@ class MainActivity : AppCompatActivity() {
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun agregarCarta(mensaje: String) {
-        var cardMsg = CardView(this)
-        val params = LinearLayout.LayoutParams(
-            900,
+    fun agregarCarta(nota: Nota) {
+        
+        //Configuracion Carta
+        val cardMsg = CardView(this)
+        val paramsCarta = LinearLayout.LayoutParams(
+            resources.getDimension(R.dimen.ancho_carta).toInt(),
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
-        params.topMargin = 20
-        params.bottomMargin = 20
-        params.gravity = Gravity.CENTER_HORIZONTAL
+        paramsCarta.topMargin = 20
+        paramsCarta.bottomMargin = 20
+        paramsCarta.gravity = Gravity.CENTER_HORIZONTAL
+        cardMsg.layoutParams = paramsCarta
 
-        cardMsg.layoutParams = params
-        cardMsg.setContentPadding(20, 15, 20, 35)
+        cardMsg.setContentPadding(20, 15, 20, 15)
         cardMsg.cardElevation = 9f
 
+        //Se agrega click sostenido para editar la nota
+        cardMsg.isLongClickable = true
+        cardMsg.setOnLongClickListener{
+            modificarNota(nota.identificador)
+            true
+        }
+        
+        //Configuracion LinearLayout
+        val paramsLinearLayout = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        val linearLayout = LinearLayout(this)
+        linearLayout.layoutParams = paramsLinearLayout
+        linearLayout.orientation = LinearLayout.VERTICAL
 
-        var nuevaNota = TextView(this)
-        nuevaNota.setText(mensaje)
+
+        //Cuerpo de la nota
+        val nuevaNota = TextView(this)
+        nuevaNota.text = nota.cuerpoNota
         nuevaNota.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        nuevaNota.textSize = resources.getDimension(R.dimen.texto_medio)
+        nuevaNota.id = nota.identificador
+        linearLayout.addView(nuevaNota)
 
+        //Fecha
+        val txtFechaCreado = TextView(this)
+        val parametrosFecha = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        txtFechaCreado.layoutParams = parametrosFecha
+        txtFechaCreado.text = fechaAString(nota.fechaCreado)
+        txtFechaCreado.gravity = Gravity.END
+        txtFechaCreado.textSize = getResources().getDimension(R.dimen.texto_chico)
+        //Agrega fecha
+        linearLayout.addView(txtFechaCreado)
 
-        cardMsg.addView(nuevaNota)
-        var contenedor = findViewById<LinearLayout>(R.id.contenedor_principal)
+        //Agregar a contenedor principal
+        val contenedor = findViewById<LinearLayout>(R.id.contenedor_principal)
+        cardMsg.addView(linearLayout)
         contenedor.addView(cardMsg)
 
+    }
+
+    fun modificarNota(idNota : Int){
+        val viewNota = findViewById<TextView>(idNota)
+        val editNota = EditText(this)
+        editNota.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        editNota.textSize = resources.getDimension(R.dimen.texto_medio)
+        editNota.setText(viewNota.text, TextView.BufferType.EDITABLE);
+        editNota.id = 100000 + idNota
+
+
+        val linearLayout = viewNota.parent as LinearLayout
+        viewNota.visibility = View.GONE
+        linearLayout.addView(editNota, 1)
+
+        //Boton Aceptar
+        val botonAceptar = Button(this)
+        botonAceptar.text = ";)"
+            val paramsBtn = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        //botonAceptar.gravity = Gravity.RIGHT
+        botonAceptar.layoutParams = paramsBtn
+
+        botonAceptar.setOnClickListener { modificarNotaAceptar(idNota, editNota.id) }
+
+        //Boton Cancelar
+        val botonCancelar = Button(this)
+        botonCancelar.text = "x"
+        //botonCancelar.gravity = Gravity.RIGHT
+        botonCancelar.layoutParams = paramsBtn
+
+        val linearLayoutBotonesModificar = LinearLayout(this)
+        linearLayoutBotonesModificar.orientation = LinearLayout.HORIZONTAL
+        linearLayoutBotonesModificar.layoutParams = paramsBtn
+        linearLayoutBotonesModificar.gravity = Gravity.RIGHT
+
+        linearLayoutBotonesModificar.addView(botonAceptar)
+        linearLayoutBotonesModificar.addView(botonCancelar)
+
+        linearLayout.addView(linearLayoutBotonesModificar, linearLayout.childCount-1)
+
+        //Ocultar text area
+        ocultar_text_area()
+
+    }
+
+    fun ocultar_text_area() {
+        val linearLayout = findViewById<LinearLayout>(R.id.conte_nuevo_text_area)
+        linearLayout.visibility = View.GONE
+
+        //val fragment = findViewById<Fragment>(R.id.nav_host_fragment_content_main)
+    }
+
+    fun mostrar_text_area() {
+        val linearLayout = findViewById<LinearLayout>(R.id.conte_nuevo_text_area)
+        linearLayout.visibility = View.VISIBLE
+    }
+
+    fun modificarNotaAceptar(idNota: Int, idEditNota: Int) {
+        val viewNota = findViewById<TextView>(idNota)
+        val editNota = findViewById<TextView>(idEditNota)
+
+        if(guardarModificacionNota(idNota, editNota.text.toString())){
+            viewNota.text = editNota.text.toString()
+            viewNota.visibility = View.VISIBLE
+            val linearLayout = viewNota.parent as LinearLayout
+            linearLayout.removeViewAt(linearLayout.childCount-2)
+            linearLayout.removeView(editNota)
+
+        }
+
+        mostrar_text_area()
+
+
+    }
+
+    //Guarda la modificacion en base de datos
+    fun guardarModificacionNota (idNota: Int, mensaje : String): Boolean {
+        try {
+            val row1 = ContentValues()
+            row1.put("mensaje", mensaje)
+            row1.put("fechaModificado", fechaAString(Date()))
+            val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+
+            val where = "id=?"
+            val whereArgs = arrayOf<String>(idNota.toString())
+
+            appDB.update("notas", row1, where, whereArgs)
+            appDB.close()
+        } catch (e : Exception){
+            return false
+        }
+        return true
     }
 
     fun toastShort (mensaje : String) {

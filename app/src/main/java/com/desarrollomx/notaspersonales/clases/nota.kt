@@ -1,27 +1,39 @@
 package com.desarrollomx.notaspersonales.clases
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 class Nota {
-  //val identificador : Int
+  val identificador : Int
   var cuerpoNota : String
-  lateinit var categoria : String
-  //val fechaCreado : Date
-  //val fechaModificado : Date
+  var categoria : String = ""
+  val fechaCreado : Date
+  lateinit var fechaModificado : Date
 
 
 
   constructor(
-              //identificador : Int,
+              identificador : Int,
               mensaje : String,
-              //categoria : String,
-              //fechaCreado : String, fechaModificado : String
+              categoria : String,
+              fechaCreado : String, fechaModificado : String
   ){
-      //this.identificador = identificador
+      this.identificador = identificador
       this.cuerpoNota = mensaje
-    //  this.categoria = categoria
-     // this.fechaCreado = fechaCreado
-     // this.fechaModificado = fechaModificado
+
+      if(!categoria.isNullOrBlank()){
+          this.categoria = categoria
+      }
+      val pattern = "yyyy-MM-dd HH:mm:ss"
+      val simpleDateFormat = SimpleDateFormat(pattern)
+      var date = simpleDateFormat.parse(fechaCreado)
+      this.fechaCreado = date
+
+      if (!fechaModificado.isNullOrBlank()){
+          date = simpleDateFormat.parse(fechaModificado)
+          this.fechaModificado = date
+      }
+
   }
 
 

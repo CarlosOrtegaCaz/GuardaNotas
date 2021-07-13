@@ -1,3 +1,7 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="texto_chico">2.3sp</dimen>
+    <dimen name="texto_medio">4sp</dimen>
+
+    <dimen name="ancho_carta">300dp</dimen>
 </resources>
