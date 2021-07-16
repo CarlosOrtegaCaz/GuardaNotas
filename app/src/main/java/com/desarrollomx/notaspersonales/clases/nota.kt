@@ -17,7 +17,8 @@ class Nota {
               mensaje : String,
               categoria : String,
               fechaCreado : String, fechaModificado : String
-  ){
+  )
+  {
       this.identificador = identificador
       this.cuerpoNota = mensaje
 
@@ -35,6 +36,5 @@ class Nota {
       }
 
   }
-
 
 }

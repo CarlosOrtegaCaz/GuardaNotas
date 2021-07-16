@@ -1,6 +1,5 @@
 package com.desarrollomx.notaspersonales
 
-import android.R.id
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -105,8 +104,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         //Guardar nota en base de datos
-            //guardarNota(mensaje)
-
+        guardarNuevaNota(mensaje)
 
         //agregarCarta(mensaje)
         areaTexto.setText("")//Vaciar
@@ -123,21 +121,47 @@ class MainActivity : AppCompatActivity() {
         contenedorScroll.smoothScrollTo(0,contenedorCartas.height)
     }
 
-    private fun guardarNota(mensaje: String) {
-        val row1 = ContentValues()
-        row1.put("mensaje", mensaje)
-        //val fecha = java.util.Calendar.getInstance()
-        //println("Fecha:  " + fecha.time)
+    private fun guardarNuevaNota(mensaje: String) {
 
-        //Fecha a string
+        try {
+            val row1 = ContentValues()
+            row1.put("mensaje", mensaje)
+            //val fecha = java.util.Calendar.getInstance()
+            //println("Fecha:  " + fecha.time)
+
+            //Fecha a string
+
+            val fecha = fechaAString(Date())
+            row1.put("fechaCreado", fecha)
+
+            val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+
+            appDB.insert("notas",null,row1)
+            val whereArgs = arrayOf<String>(mensaje, fecha)
+
+            val myCursor: Cursor = appDB.rawQuery("select * from notas where mensaje = ? and fechaCreado = ?", whereArgs)
+            while (myCursor.moveToNext()) {
+                val id = myCursor.getInt(0)
+                val mensaje = myCursor.getString(1)
+                //println("Carta - " + mensaje)
+                val categoria = if( myCursor.getString(2).isNullOrBlank()) "" else myCursor.getString(2)
+                val fechaCreado = myCursor.getString(3)
+                val fechaModificado = if (myCursor.getString(4).isNullOrBlank()) "" else myCursor.getString(4)
+
+                val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
+                //val nota = Nota(mensaje)
+                //println("Nota $id  $mensaje")
+                agregarCarta(nota)
+            }
+            myCursor.close()
 
 
-        row1.put("fechaCreado", fechaAString(Date()))
+            appDB.close()
 
-        val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+        } catch (e : Exception){
+            e.printStackTrace()
+        }
 
-        appDB.insert("notas",null,row1)
-        appDB.close()
     }
 
     fun fechaAString (fecha : Date): String {
