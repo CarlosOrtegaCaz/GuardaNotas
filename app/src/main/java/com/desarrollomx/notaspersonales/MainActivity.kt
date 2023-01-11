@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    lateinit var contenerdor_principal : ScrollView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +53,10 @@ class MainActivity : AppCompatActivity() {
         conexionBD()
 
         cargarNotas()
+
+        contenerdor_principal = findViewById(R.id.main_scroll)
         goToBottom()
-        hideKeyboard()
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
     }
 
@@ -61,6 +64,8 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         val areaTexto = findViewById<EditText>(R.id.ta_msg)
         areaTexto.clearFocus() //No sirve
+        goToBottom()
+
 
     }
 
@@ -112,13 +117,14 @@ class MainActivity : AppCompatActivity() {
         goToBottom()
 
 
-
     }
 
     private fun goToBottom () {
-        val contenedorCartas = findViewById<LinearLayout>(R.id.contenedor_principal)
-        val contenedorScroll = findViewById<ScrollView>(R.id.main_scroll)
-        contenedorScroll.smoothScrollTo(0,contenedorCartas.height)
+       // val contenedorCartas = findViewById<LinearLayout>(R.id.contenedor_principal)
+       // val contenedorScroll = findViewById<ScrollView>(R.id.main_scroll)
+        //contenedorScroll.smoothScrollTo(0,contenedorScroll.bottom)
+
+        contenerdor_principal.fullScroll(View.FOCUS_DOWN)
     }
 
     private fun guardarNuevaNota(mensaje: String) {
@@ -171,7 +177,6 @@ class MainActivity : AppCompatActivity() {
         //println("Fecha: " + date)
         return date
     }
-
 
     fun hideKeyboard() {
         hideKeyboard(currentFocus ?: View(this))
@@ -242,6 +247,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * Cambia un viewText por EditText pasando el id de nota
+     * como parametro. Tambien agrega botones de aceptar o cancelar para confirmar
+     * cambios.
+     *  @param idNota Int
+     *  @since 14/07/2021
+     *  @author Juan Carlos Ortega
+     */
     fun modificarNota(idNota : Int){
         val viewNota = findViewById<TextView>(idNota)
         val editNota = EditText(this)
@@ -259,10 +272,10 @@ class MainActivity : AppCompatActivity() {
         //Boton Aceptar
         val botonAceptar = Button(this)
         botonAceptar.text = ";)"
-            val paramsBtn = ViewGroup.LayoutParams(
+        val paramsBtn = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        //botonAceptar.gravity = Gravity.RIGHT
+        //botonAceptar.gravity = Gravity.RIGHT //paramsBtn no tiene propiedad gravity
         botonAceptar.layoutParams = paramsBtn
 
         botonAceptar.setOnClickListener { modificarNotaAceptar(idNota, editNota.id) }
@@ -272,6 +285,7 @@ class MainActivity : AppCompatActivity() {
         botonCancelar.text = "x"
         //botonCancelar.gravity = Gravity.RIGHT
         botonCancelar.layoutParams = paramsBtn
+        botonCancelar.setOnClickListener { modificarNotaCancelar(idNota, editNota.id) }
 
         val linearLayoutBotonesModificar = LinearLayout(this)
         linearLayoutBotonesModificar.orientation = LinearLayout.HORIZONTAL
@@ -283,9 +297,53 @@ class MainActivity : AppCompatActivity() {
 
         linearLayout.addView(linearLayoutBotonesModificar, linearLayout.childCount-1)
 
-        //Ocultar text area
         ocultar_text_area()
+    }
 
+    /**
+     * Accion cancelar modificar nota. Hace visible el viewText y elimina el EditText
+     * @param idNota Int Identificador de la nota seleccionada
+     * @param idEditNota Identificador del EditText a eliminar
+     * @since 14/07/2021
+     */
+    fun modificarNotaCancelar(idNota: Int, idEditNota: Int){
+        val viewNota = findViewById<TextView>(idNota)
+        val editNota = findViewById<TextView>(idEditNota)
+
+        if(eliminarNota(idNota)){
+            viewNota.visibility = View.INVISIBLE
+            val linearLayout = viewNota.parent as LinearLayout
+            linearLayout.removeViewAt(linearLayout.childCount-2)
+            linearLayout.removeView(editNota)
+
+            val nota = viewNota.parent.parent as CardView
+            val contenedor = findViewById<LinearLayout>(R.id.contenedor_principal)
+
+            contenedor.removeView(nota)
+        }
+
+        mostrar_text_area()
+    }
+
+    /**
+     * Elimina la nota en base de datos
+     * @param idNota Int Identificador de la nota seleccionada
+     * @since 10/01/2023
+     */
+
+    fun eliminarNota (idNota: Int): Boolean {
+        try {
+            val where = "id=?"
+            val whereArgs = arrayOf<String>(idNota.toString())
+
+            val appDB = openOrCreateDatabase("app.db", MODE_PRIVATE, null)
+            appDB.delete("notas",where,whereArgs)
+            appDB.close()
+
+        } catch (e : Exception){
+            return false
+        }
+        return true
     }
 
     fun ocultar_text_area() {
@@ -311,6 +369,8 @@ class MainActivity : AppCompatActivity() {
             linearLayout.removeViewAt(linearLayout.childCount-2)
             linearLayout.removeView(editNota)
 
+        } else {
+            toastShort("Ha ocurrido un error. No se ha guardado la nota correctamente")
         }
 
         mostrar_text_area()

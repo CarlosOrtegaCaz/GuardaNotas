@@ -5,6 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.desarrollomx.notaspersonales.databinding.FragmentFirstBinding
 
@@ -31,9 +34,24 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+goToBottom()
 
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+goToBottom()
+    }
+
+    private fun goToBottom () {
+        val contenedorScroll = view?.findViewById<ScrollView>(R.id.main_scroll)
+        //contenedorScroll.smoothScrollTo(0,contenedorCartas.height)
+
+        if (contenedorScroll != null) {
+            contenedorScroll.fullScroll(View.FOCUS_DOWN)
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
