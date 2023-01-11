@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         val areaTexto = findViewById<EditText>(R.id.ta_msg)
         val mensaje = areaTexto.text.toString()
         if (mensaje.isBlank()){
-            toastShort("Mensaje vacío...")
+            toastShort(getString(R.string.nota_vacia))
             return
         }
 
@@ -271,7 +271,7 @@ class MainActivity : AppCompatActivity() {
 
         //Boton Aceptar
         val botonAceptar = Button(this)
-        botonAceptar.text = ";)"
+        botonAceptar.text = getString(R.string.actualizar_nota)
         val paramsBtn = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
 
@@ -282,7 +282,7 @@ class MainActivity : AppCompatActivity() {
 
         //Boton Cancelar
         val botonCancelar = Button(this)
-        botonCancelar.text = "x"
+        botonCancelar.text = getString(R.string.borrar_nota)
         //botonCancelar.gravity = Gravity.RIGHT
         botonCancelar.layoutParams = paramsBtn
         botonCancelar.setOnClickListener { modificarNotaCancelar(idNota, editNota.id) }
