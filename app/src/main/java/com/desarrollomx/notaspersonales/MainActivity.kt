@@ -16,6 +16,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.desarrollomx.notaspersonales.clases.Carta
 import com.desarrollomx.notaspersonales.clases.Nota
 import com.desarrollomx.notaspersonales.databinding.ActivityMainBinding
 import java.text.SimpleDateFormat
@@ -190,7 +191,8 @@ class MainActivity : AppCompatActivity() {
     fun agregarCarta(nota: Nota) {
         
         //Configuracion Carta
-        val cardMsg = CardView(this)
+        //val cardMsg = CardView(this)
+        val cardMsg = Carta(this)
         val paramsCarta = LinearLayout.LayoutParams(
             resources.getDimension(R.dimen.ancho_carta).toInt(),
             LinearLayout.LayoutParams.WRAP_CONTENT
@@ -236,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         txtFechaCreado.layoutParams = parametrosFecha
         txtFechaCreado.text = fechaAString(nota.fechaCreado)
         txtFechaCreado.gravity = Gravity.END
-        txtFechaCreado.textSize = getResources().getDimension(R.dimen.texto_chico)
+        txtFechaCreado.textSize = resources.getDimension(R.dimen.texto_chico)
         //Agrega fecha
         linearLayout.addView(txtFechaCreado)
 
@@ -257,6 +259,11 @@ class MainActivity : AppCompatActivity() {
      */
     fun modificarNota(idNota : Int){
         val viewNota = findViewById<TextView>(idNota)
+        val carta = viewNota.parent.parent as Carta
+        if (carta.modifying){
+            return
+        }
+
         val editNota = EditText(this)
         editNota.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -297,6 +304,8 @@ class MainActivity : AppCompatActivity() {
 
         linearLayout.addView(linearLayoutBotonesModificar, linearLayout.childCount-1)
 
+
+        carta.modifying = true
         ocultar_text_area()
     }
 
@@ -316,7 +325,7 @@ class MainActivity : AppCompatActivity() {
             linearLayout.removeViewAt(linearLayout.childCount-2)
             linearLayout.removeView(editNota)
 
-            val nota = viewNota.parent.parent as CardView
+            val nota = viewNota.parent.parent as Carta
             val contenedor = findViewById<LinearLayout>(R.id.contenedor_principal)
 
             contenedor.removeView(nota)
@@ -368,6 +377,9 @@ class MainActivity : AppCompatActivity() {
             val linearLayout = viewNota.parent as LinearLayout
             linearLayout.removeViewAt(linearLayout.childCount-2)
             linearLayout.removeView(editNota)
+
+            val carta = linearLayout.parent as Carta
+            carta.modifying = false
 
         } else {
             toastShort("Ha ocurrido un error. No se ha guardado la nota correctamente")
