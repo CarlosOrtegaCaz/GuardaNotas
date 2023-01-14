@@ -25,7 +25,12 @@ class Nota {
       if(!categoria.isNullOrBlank()){
           this.categoria = categoria
       }
-      val pattern = "yyyy-MM-dd HH:mm:ss"
+      var pattern = "HH:mm:ss MM-dd-yyyy"
+      if (Locale.getDefault().language == "es")
+      {
+          pattern = "HH:mm:ss dd-MM-yyyy"
+      }
+
       val simpleDateFormat = SimpleDateFormat(pattern)
       var date = simpleDateFormat.parse(fechaCreado)
       this.fechaCreado = date

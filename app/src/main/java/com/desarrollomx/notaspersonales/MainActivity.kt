@@ -3,7 +3,9 @@ package com.desarrollomx.notaspersonales
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import android.view.ViewGroup
@@ -11,7 +13,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -41,14 +42,11 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        //Prueba con texto con 500 caracteres
-        //area_texto_nota =
-
-        // findViewById<EditText>(R.id.ta_msg).setText("Brackets tiene varias características únicas como la Edición rápida y la Vista previa dinámica y muchas más que no vas a encontrar en otros editores. Además, Brackets está escrito en JavaScript, HTML y CSS.\n" +
-        //        " Esto significa que la mayoría de quienes usan Brackets tienen las habilidades necesarias para modificar y extender el editor. De hecho, nosotros usamos Brackets todos los días para desarrollar Brackets. Para saber más sobre cómo utilizar estas características únicas, continúa leyendo.")
-
         val botonGuardar = findViewById<Button>(R.id.btn_guardar_nota)
-
+        botonGuardar.setOnFocusChangeListener{v, hasFocus ->
+            if(hasFocus){
+                accionBotonGuardarNota()
+            }}
         botonGuardar.setOnClickListener { accionBotonGuardarNota() }
 
         conexionBD()
@@ -66,8 +64,6 @@ class MainActivity : AppCompatActivity() {
         val areaTexto = findViewById<EditText>(R.id.ta_msg)
         areaTexto.clearFocus() //No sirve
         goToBottom()
-
-
     }
 
     private fun cargarNotas() {
@@ -77,14 +73,11 @@ class MainActivity : AppCompatActivity() {
         while (myCursor.moveToNext()) {
             val id = myCursor.getInt(0)
             val mensaje = myCursor.getString(1)
-            //println("Carta - " + mensaje)
             val categoria = if( myCursor.getString(2).isNullOrBlank()) "" else myCursor.getString(2)
             val fechaCreado = myCursor.getString(3)
             val fechaModificado = if (myCursor.getString(4).isNullOrBlank()) "" else myCursor.getString(4)
 
             val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
-            //val nota = Nota(mensaje)
-            //println("Nota $id  $mensaje")
             agregarCarta(nota)
         }
         myCursor.close()
@@ -111,20 +104,12 @@ class MainActivity : AppCompatActivity() {
 
         //Guardar nota en base de datos
         guardarNuevaNota(mensaje)
-
-        //agregarCarta(mensaje)
         areaTexto.setText("")//Vaciar
         hideKeyboard()
         goToBottom()
-
-
     }
 
     private fun goToBottom () {
-       // val contenedorCartas = findViewById<LinearLayout>(R.id.contenedor_principal)
-       // val contenedorScroll = findViewById<ScrollView>(R.id.main_scroll)
-        //contenedorScroll.smoothScrollTo(0,contenedorScroll.bottom)
-
         contenerdor_principal.fullScroll(View.FOCUS_DOWN)
     }
 
@@ -133,11 +118,8 @@ class MainActivity : AppCompatActivity() {
         try {
             val row1 = ContentValues()
             row1.put("mensaje", mensaje)
-            //val fecha = java.util.Calendar.getInstance()
-            //println("Fecha:  " + fecha.time)
 
             //Fecha a string
-
             val fecha = fechaAString(Date())
             row1.put("fechaCreado", fecha)
 
@@ -150,21 +132,15 @@ class MainActivity : AppCompatActivity() {
             while (myCursor.moveToNext()) {
                 val id = myCursor.getInt(0)
                 val mensaje = myCursor.getString(1)
-                //println("Carta - " + mensaje)
                 val categoria = if( myCursor.getString(2).isNullOrBlank()) "" else myCursor.getString(2)
                 val fechaCreado = myCursor.getString(3)
                 val fechaModificado = if (myCursor.getString(4).isNullOrBlank()) "" else myCursor.getString(4)
 
                 val nota = Nota(id, mensaje, categoria, fechaCreado, fechaModificado)
-                //val nota = Nota(mensaje)
-                //println("Nota $id  $mensaje")
                 agregarCarta(nota)
             }
             myCursor.close()
-
-
             appDB.close()
-
         } catch (e : Exception){
             e.printStackTrace()
         }
@@ -172,10 +148,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun fechaAString (fecha : Date): String {
-        val pattern = "yyyy-MM-dd HH:mm:ss"
+        var pattern = "HH:mm:ss MM-dd-yyyy"
+        if (Locale.getDefault().language == "es")
+        {
+            pattern = "HH:mm:ss dd-MM-yyyy"
+        }
         val simpleDateFormat = SimpleDateFormat(pattern)
         val date: String = simpleDateFormat.format(fecha)
-        //println("Fecha: " + date)
         return date
     }
 
@@ -189,9 +168,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun agregarCarta(nota: Nota) {
-        
         //Configuracion Carta
-        //val cardMsg = CardView(this)
         val cardMsg = Carta(this)
         val paramsCarta = LinearLayout.LayoutParams(
             resources.getDimension(R.dimen.ancho_carta).toInt(),
@@ -304,7 +281,6 @@ class MainActivity : AppCompatActivity() {
 
         linearLayout.addView(linearLayoutBotonesModificar, linearLayout.childCount-1)
 
-
         carta.modifying = true
         ocultar_text_area()
     }
@@ -358,8 +334,6 @@ class MainActivity : AppCompatActivity() {
     fun ocultar_text_area() {
         val linearLayout = findViewById<LinearLayout>(R.id.conte_nuevo_text_area)
         linearLayout.visibility = View.GONE
-
-        //val fragment = findViewById<Fragment>(R.id.nav_host_fragment_content_main)
     }
 
     fun mostrar_text_area() {
@@ -390,7 +364,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    //Guarda la modificacion en base de datos
+    /**
+     * Guarda la modificacion de la nota en base de datos
+     */
     fun guardarModificacionNota (idNota: Int, mensaje : String): Boolean {
         try {
             val row1 = ContentValues()
@@ -418,12 +394,24 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
+    fun openNewTabWindow(urls: String, context : Context) {
+        val uris = Uri.parse(urls)
+        val intents = Intent(Intent.ACTION_VIEW, uris)
+        val b = Bundle()
+        b.putBoolean("new_window", true)
+        intents.putExtras(b)
+        context.startActivity(intents)
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
+        val configuracion = getString(R.string.action_settings)
+        if(item.title == configuracion){
+                openNewTabWindow(getString(R.string.url_anuncios), this)
+        }
+         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }

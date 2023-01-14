@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Notes</string>
-    <string name="action_settings">J.C.O.C.</string>
+    <string name="action_settings">Ads...</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">Notes</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -16,6 +16,8 @@
     <string name="actualizar_nota">✓</string>
     <string name="borrar_nota">🗑</string>
     <string name="nota_vacia">Empty message... Please write a note</string>
+    <string name="url_anuncios">https://ortegacaz.com/ads/</string>
 
-    <!--string name="borrar_nota">🗶</string-->
+    <string name="info_settings">Hold a note to edit it.</string>
+
 </resources>
