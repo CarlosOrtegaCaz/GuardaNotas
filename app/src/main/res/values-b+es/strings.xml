@@ -18,6 +18,6 @@
     <string name="nota_vacia">Mensaje vacío...</string>
     <string name="url_anuncios">https://ortegacaz.com/anuncios/</string>
 
-    <string name="info_settings">Presionada una nota para editarla.</string>
+    <string name="info_settings">Presiona una nota para editarla.</string>
     <!--string name="borrar_nota">🗶</string-->
 </resources>
