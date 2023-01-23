@@ -3,5 +3,5 @@
     <dimen name="texto_chico">4sp</dimen>
     <dimen name="texto_medio">8sp</dimen>
 
-    <dimen name="ancho_carta">300dp</dimen>
+    <dimen name="ancho_carta">.7 </dimen>
 </resources>

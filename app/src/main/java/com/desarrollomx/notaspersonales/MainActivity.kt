@@ -5,18 +5,23 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.getSystemService
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.window.layout.WindowMetricsCalculator
 import com.desarrollomx.notaspersonales.clases.Carta
 import com.desarrollomx.notaspersonales.clases.Nota
 import com.desarrollomx.notaspersonales.databinding.ActivityMainBinding
@@ -163,15 +168,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun Context.hideKeyboard(view: View) {
-        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     fun agregarCarta(nota: Nota) {
         //Configuracion Carta
         val cardMsg = Carta(this)
+        //val metrics: WindowMetrics = context.getSystemService(WindowManager::class.java).currentWindowMetrics
+        //val dim = context.
+
+        //val defaultDisplay = getSystemService<DisplayManager>()?.getDisplay(Display.DEFAULT_DISPLAY)
+        //defaultDisplay.
+
+        val metrics = WindowMetricsCalculator.getOrCreate()
+            .computeCurrentWindowMetrics(this)
+
+        val width =  metrics.bounds.width()
+        val tamanoCarta : Int = getResources().getInteger(R.integer.PORCENTAJE_TAMANO_CARTA)
         val paramsCarta = LinearLayout.LayoutParams(
-            resources.getDimension(R.dimen.ancho_carta).toInt(),
+            width * tamanoCarta / 100,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         paramsCarta.topMargin = 20
